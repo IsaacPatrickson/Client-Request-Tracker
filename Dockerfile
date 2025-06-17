@@ -24,5 +24,8 @@ COPY render-predeploy.sh /app/render-predeploy.sh
 RUN chmod +x /app/entrypoint.sh
 RUN chmod +x /app/render-predeploy.sh
 
+# Pre-create the staticfiles directory to suppress the warning
+RUN mkdir -p /app/staticfiles
+
 # Use entrypoint to start the server
 CMD ["/app/entrypoint.sh"]
