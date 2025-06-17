@@ -18,5 +18,9 @@ COPY . .
 # Expose the port Django will use
 EXPOSE 8000
 
-# Run the application
-CMD ["sh", "-c", "python manage.py runserver 0.0.0.0:$PORT"]
+# Copy entrypoint script and make sure it is executable
+COPY entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
+
+# Use entrypoint to start the server
+CMD ["/app/entrypoint.sh"]
