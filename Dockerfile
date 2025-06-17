@@ -1,19 +1,21 @@
 # Use the official Python image
 FROM python:3.11
 
-# Set the working directory inside the container
+# Set working directory
 WORKDIR /app
 
-# Copy requirements file and install dependencies
+# Install dependencies
 COPY requirements.txt .
-
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Now copy the rest of the project files
+# Copy app code
 COPY . .
 
-# Expose port 8000
+# Collect static files (optional)
+# RUN python manage.py collectstatic --noinput
+
+# Expose port
 EXPOSE 8000
 
-# Start the Django development server
+# Run server (swap to gunicorn for production)
 CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
