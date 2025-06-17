@@ -20,7 +20,9 @@ EXPOSE 8000
 
 # Copy entrypoint script and make sure it is executable
 COPY entrypoint.sh /app/entrypoint.sh
+COPY render-predeploy.sh /app/render-predeploy.sh
 RUN chmod +x /app/entrypoint.sh
+RUN chmod +x /app/render-predeploy.sh
 
 # Use entrypoint to start the server
 CMD ["/app/entrypoint.sh"]
