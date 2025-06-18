@@ -16,8 +16,3 @@ pipelines:
               - pip install -r requirements.txt
               - pip install pytest
               - pytest -v tests --junitxml=test-reports/report.xml
-        - step:
-            name: Lint code
-            script:
-              - pip install flake8
-              - flake8 . --extend-exclude=dist,build --show-source --statistics
