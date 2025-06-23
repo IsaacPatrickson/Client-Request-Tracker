@@ -20,7 +20,7 @@ def test_user_can_logout_successfully(client):
     # Check redirect target URL is the login page
     assert response.redirect_chain[-1][0].endswith(reverse('login'))
     # Confirm user is logged out: accessing a login-required page should redirect to login
-    dashboard_url = reverse('user-dashboard')  # protected page
+    dashboard_url = reverse('admin:index')  # protected page
     response2 = client.post(dashboard_url)
     assert response2.status_code == 302  # Redirect to login
     assert reverse('login') in response2.url

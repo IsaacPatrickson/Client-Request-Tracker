@@ -24,5 +24,8 @@ coverage:
 collectstatic:
 	docker-compose exec web python manage.py collectstatic --noinput
 
+flush:
+	docker-compose exec web python manage.py flush
+
 shell:
 	docker-compose exec web python manage.py shell

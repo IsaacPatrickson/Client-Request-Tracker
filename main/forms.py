@@ -1,6 +1,8 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
+from django.contrib.auth.models import Group
+
 
 class UserRegistrationForm (forms.ModelForm):
     # Explicitly declared fields usually display before the fields defined in class Meta
@@ -40,6 +42,12 @@ class UserRegistrationForm (forms.ModelForm):
     def save(self, commit=True):
         user = super().save(commit=False)
         user.set_password(self.cleaned_data['password'])
+        user.is_staff = True
         if commit:
             user.save()
+            try:
+                limited_group = Group.objects.get(name='LimitedUsers')
+                user.groups.add(limited_group)
+            except Group.DoesNotExist:
+                pass
         return user

@@ -2,16 +2,19 @@ import pytest
 from django.urls import reverse
 from django.contrib.auth.models import User
 
+
 # Tests cover login flow:
 # - redirect for regular, staff, superuser users
 # - login failure
 # - access control for dashboards (authorized/unauthorized)
 
 @pytest.mark.django_db
-def test_regular_user_login_redirects_to_user_dashboard(client):
-    # Test redirect after login for a normal user
-    # Create regular user
-    User.objects.create_user(username='newuser', password='password123')
+def test_user_without_is_staff_login_redirects_to_account_disabled_message(client):
+    # Create a user wihtout is_staff 
+    # This should never happen on account registration
+    # Only occurs if another admin has altered permissions and disabled is_staff 
+    # Effectively deactivating the account 
+    User.objects.create_user(username='newuser', password='password123', is_staff=False)
     # Post login credentials
     url = reverse('login')
     response = client.post(url, {
@@ -19,10 +22,10 @@ def test_regular_user_login_redirects_to_user_dashboard(client):
         'password': 'password123',
     })
     assert response.status_code == 302
-    assert response.url == reverse('user-dashboard')
+    assert response.url == reverse('account_disabled')
 
 @pytest.mark.django_db
-def test_admin_user_login_redirects_to_admin_dashboard(client):
+def test_is_staff_user_login_redirects_to_admin_dashboard(client):
     # Test redirect after login for staff user
     # Create staff user
     User.objects.create_user(username='adminuser', password='adminpass123', is_staff=True)
@@ -38,7 +41,7 @@ def test_admin_user_login_redirects_to_admin_dashboard(client):
 def test_superuser_login_redirects_to_admin_dashboard(client):
     # Test redirect after login for superuser
     # Create superuser
-    User.objects.create_user(username='superuser', password='superpass123', is_superuser=True)
+    User.objects.create_superuser(username='superuser', password='superpass123')
     url = reverse('login')
     response = client.post(url, {
         'username': 'superuser',
@@ -50,7 +53,7 @@ def test_superuser_login_redirects_to_admin_dashboard(client):
 @pytest.mark.django_db
 def test_login_fails_with_wrong_password(client):
     # Tests login failure with incorrect password
-    User.objects.create_user(username='newuser', password='password123')
+    User.objects.create_user(username='newuser', password='password123', is_staff=True)
     url = reverse('login')
     response = client.post(url, {
         'username': 'newuser',
@@ -59,39 +62,23 @@ def test_login_fails_with_wrong_password(client):
     # Login form re-rendered with error
     assert response.status_code == 200
     assert b"Please enter a correct username and password" in response.content
-
+    
 @pytest.mark.django_db
-def test_user_dashboard_requires_login(client):
-    # Access user dashboard without login redirects to login
-    url = reverse('user-dashboard')
+def test_homeview_redirects_authenticated(client, django_user_model):
+    user = django_user_model.objects.create_user(username='testuser', password='pass', is_staff=True)
+    client.force_login(user)
+
+    url = reverse('home')
     response = client.get(url)
-    # Redirects to login page when not logged in
     assert response.status_code == 302
-    assert response.url.startswith(reverse('login'))
+    assert response.url == reverse('admin:index')
 
 @pytest.mark.django_db
-def test_logged_in_regular_user_can_access_user_dashboard(client):
-    # Regular logged-in user can access user dashboard
-    user = User.objects.create_user(username='regular', password='securepassword123')
-    client.login(username='regular', password='securepassword123')
-    url = reverse('user-dashboard')
-    response = client.get(url)
-    assert response.status_code == 200
+def test_registerview_redirects_authenticated(client, django_user_model):
+    user = django_user_model.objects.create_user(username='testuser', password='pass', is_staff=True)
+    client.force_login(user)
 
-@pytest.mark.django_db
-def test_logged_in_admin_user_can_access_admin_dashboard(client):
-    # Staff user can access admin dashboard
-    admin_user = User.objects.create_user(username='admin', password='securepassword123', is_staff=True)
-    client.login(username='admin', password='securepassword123')
-    url = reverse('admin:index')
+    url = reverse('register')
     response = client.get(url)
-    assert response.status_code == 200
-
-@pytest.mark.django_db
-def test_logged_in_regular_user_cannot_access_admin_dashboard(client):
-    # Regular user cannot access admin dashboard, expect 403
-    user = User.objects.create_user(username='regular', password='securepassword123')
-    client.login(username='regular', password='securepassword123')
-    url = reverse('admin:index')
-    response = client.get(url)
-    assert response.status_code == 403
+    assert response.status_code == 302
+    assert response.url == reverse('admin:index')

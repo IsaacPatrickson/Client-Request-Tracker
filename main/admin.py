@@ -2,7 +2,6 @@ from django.contrib import admin
 from .models import Client, RequestType, ClientRequest
 from django.contrib.auth.models import User
 from django.contrib.auth.admin import UserAdmin as DefaultUserAdmin
-from django.utils.html import format_html
 from django.contrib.admin import AdminSite
 from .decorators import staff_member_required_403
 
@@ -25,7 +24,7 @@ class CustomAdminSite(AdminSite):
 # Instantiate your custom admin site, so you can register your models with it    
 custom_admin_site = CustomAdminSite(name='custom_admin')
 
-# Inline editing for ClientRequest within Client admin
+# Inline editing for ClientRequest within Client table(model) admin
 class ClientRequestInline(admin.TabularInline):
     model = ClientRequest
     extra = 1
@@ -34,7 +33,7 @@ class ClientRequestInline(admin.TabularInline):
     show_change_link = True
        
 
-# Register Client with custom admin options
+# Register Client table(model) with custom admin options
 class ClientAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'email', 'contact_number', 'company_url', 'created_at', 'is_active')
     search_fields = ('name', 'email', 'contact_number', 'company_url')
@@ -51,15 +50,9 @@ class ClientAdmin(admin.ModelAdmin):
         }),
     )
 
-    def is_active_colour(self, obj):
-        # Returns HTML formatted text showing active status in green or red
-        color = 'green' if obj.is_active else 'red'
-        status = 'Active' if obj.is_active else 'Inactive'
-        return format_html('<span style="color: {};">{}</span>', color, status)
-    is_active_colour.short_description = 'Status'
 custom_admin_site.register(Client, ClientAdmin)
 
-
+# Register Request Type table(model)
 class RequestTypeAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'description')
     search_fields = ('name',)
@@ -75,7 +68,7 @@ class RequestTypeAdmin(admin.ModelAdmin):
     )
 custom_admin_site.register(RequestType, RequestTypeAdmin)
 
-
+# Register Client Request Type table(model)
 class ClientRequestAdmin(admin.ModelAdmin):
     list_display = ('id', 'client', 'request_type', 'status', 'description','created_at', 'updated_at')
     list_filter = ('status', 'created_at')

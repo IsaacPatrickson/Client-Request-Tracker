@@ -1,17 +1,20 @@
-from django.urls import reverse_lazy, reverse
+from django.urls import reverse_lazy
 from django.views.generic import FormView, TemplateView
 from django.contrib.auth.views import LoginView
-from django.contrib.auth.decorators import login_required
-# from django.contrib.auth.decorators import user_passes_test
-from django.views.decorators.cache import never_cache
-from django.shortcuts import render, redirect
+from django.shortcuts import redirect
 from .forms import UserRegistrationForm
-from django.http import HttpResponseRedirect
+from django.contrib.auth import logout
 
 
 # Home view
 class HomeView(TemplateView):
     template_name = 'home.html'
+    
+    # Logged in users should never see the home page
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            return redirect(reverse_lazy('admin:index'))
+        return super().dispatch(request, *args, **kwargs)
 
 # # Registration form view
 class RegisterView(FormView):
@@ -19,42 +22,42 @@ class RegisterView(FormView):
     form_class = UserRegistrationForm
     success_url = reverse_lazy('login')
     
+    # Logged in users should never see the register page
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            return redirect(reverse_lazy('admin:index'))
+        return super().dispatch(request, *args, **kwargs)
+    
     def form_valid(self, form):
         form.save()
         return super().form_valid(form)
     
     
-# Custom login view with role-based redirect logic
+# Custom login view
 class CustomLoginView(LoginView):
     template_name = 'registration/login.html'
     
+    # Check if the user is_staff after a successful login
+    # If not, call logout and redirect to account disabled
+    def form_valid(self, form):
+        user = form.get_user()
+        if not user.is_staff:
+            # Log the user out immediately
+            logout(self.request)
+            # Redirect to an account disabled or info page
+            return redirect(reverse_lazy('account_disabled'))
+        return super().form_valid(form)
+    
+    # Logged in users should never see the login page
     def dispatch(self, request, *args, **kwargs):
-        next_url = request.GET.get('next')
-        # Redirect regular users trying to access admin
-        if next_url and next_url.startswith('/admin') and not request.user.is_staff:
-            return HttpResponseRedirect(reverse('login'))
-
         if request.user.is_authenticated:
-            if request.user.is_staff or request.user.is_superuser:
-                return redirect(reverse_lazy('admin:index'))
-            return redirect(reverse_lazy('user-dashboard'))
-        
+            # Redirect all logged-in users to the Django admin dashboard
+            return redirect(reverse_lazy('admin:index'))
         return super().dispatch(request, *args, **kwargs)
 
     def get_success_url(self):
-        user = self.request.user
-        if user.is_staff or user.is_superuser:
-            return reverse('admin:index')
-        return reverse('user-dashboard')
-
-# Regular user dashboard (must be logged in)
-@never_cache
-@login_required
-def user_dashboard_view(request):
-    return render(request, 'dashboards/user_dashboard.html')
-
-# Admin dashboard (must be logged in + is_staff)
-# @user_passes_test(lambda u: u.is_staff)
-# @login_required
-# def admin_dashboard_view(request):
-#     return render(request, 'dashboards/admin_dashboard.html')
+        # After successful login, send all users to Django admin dashboard
+        return reverse_lazy('admin:index')
+    
+class AccountDisabledView(TemplateView):
+    template_name = 'account-disabled.html'
