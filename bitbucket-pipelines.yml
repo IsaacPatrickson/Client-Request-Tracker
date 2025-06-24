@@ -9,11 +9,14 @@ pipelines:
   default:
     - step:
         name: Run Tests
+        services:
+          - postgres
         caches:
           - pip
         script:
           - pip install -r requirements.txt
-          - pip install pytest
+          - pip install pytest psycopg[binary] pytest-django
+          - python manage.py migrate --noinput
           - pytest -v main/tests --junitxml=test-reports/report.xml
         artifacts:
           - test-reports/**
