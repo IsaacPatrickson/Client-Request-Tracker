@@ -4,6 +4,17 @@
     <title>Dashboard</title>
 </head>
 <body>
+    {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+                <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+
     <h1>Register</h1>
     {% comment %} 
     Uses the POST method to send data to the server.
@@ -22,7 +33,9 @@
         {{ form.as_p }}
         <button type="submit">Register</button>
     </form>
-    <a href="{% url 'home' %}" class="btn btn-danger">Return to home</a>
+
+    <a href="{% url 'home' %}" class="btn btn-danger">Return to home</a>    
+    
 </body>
 </html>
 

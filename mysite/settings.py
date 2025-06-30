@@ -134,6 +134,3 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # The login url for unauthenticated users who try to visit the secure views
 LOGIN_URL = '/login/'
-
-# Tells Django where to send users after logout.
-LOGOUT_REDIRECT_URL = '/login/'

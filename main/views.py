@@ -1,6 +1,7 @@
 from django.urls import reverse_lazy
 from django.views.generic import FormView, TemplateView
-from django.contrib.auth.views import LoginView
+from django.contrib import messages
+from django.contrib.auth.views import LoginView, LogoutView
 from django.shortcuts import redirect
 from .forms import UserRegistrationForm
 from django.contrib.auth import logout
@@ -30,6 +31,7 @@ class RegisterView(FormView):
     
     def form_valid(self, form):
         form.save()
+        messages.success(self.request, "You have successfully Registered.")
         return super().form_valid(form)
     
     
@@ -46,6 +48,7 @@ class CustomLoginView(LoginView):
             logout(self.request)
             # Redirect to an account disabled or info page
             return redirect(reverse_lazy('account_disabled'))
+        messages.success(self.request, "You have successfully logged in.")
         return super().form_valid(form)
     
     # Logged in users should never see the login page
@@ -58,6 +61,14 @@ class CustomLoginView(LoginView):
     def get_success_url(self):
         # After successful login, send all users to Django admin dashboard
         return reverse_lazy('custom_admin:index')
+    
+    
+class CustomLogoutView(LogoutView):
+    def dispatch(self, request, *args, **kwargs):
+        messages.success(request, "You have successfully logged out.")
+        return super().dispatch(request, *args, **kwargs)
+        
+    
     
 class AccountDisabledView(TemplateView):
     template_name = 'account-disabled.html'
