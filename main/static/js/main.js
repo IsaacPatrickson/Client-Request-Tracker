@@ -26,16 +26,27 @@ const polygon2 = document.getElementById('path2');
 let startTime = null;
 const duration = 1400;
 const delayPolygon2 = 300;
+const pointDelays1 = [0, 600, 600, 600, 600];
+const pointDelays2 = [0, 0, 400, 400, 900, 1000]; // 6 points in polygon2
+const durationPerPoint = 1000; // how long each point takes once it starts
 
 let currentPointsStart1 = [], currentPointsEnd1 = [];
 let currentPointsStart2 = [], currentPointsEnd2 = [];
 
 // === Helper Functions ===
-function interpolatePoints(start, end, t) {
-    return start.map((p, i) => [
-        p[0] + (end[i][0] - p[0]) * t,
-        p[1] + (end[i][1] - p[1]) * t
-    ]);
+function interpolatePointsWithDelays(pointsA, pointsB, elapsed, delays) {
+    return pointsA.map((start, i) => {
+        const end = pointsB[i];
+        const delay = delays[i] || 0;
+
+        let localT = (elapsed - delay) / durationPerPoint;
+        localT = Math.max(0, Math.min(localT, 1));
+        const easedT = easeInOutCubic(localT);
+
+        const x = start[0] + (end[0] - start[0]) * easedT;
+        const y = start[1] + (end[1] - start[1]) * easedT;
+        return [x, y];
+    });
 }
 
 function pointsToString(points) {
@@ -46,21 +57,19 @@ function pointsToString(points) {
 function animate(timestamp) {
     if (!startTime) startTime = timestamp;
     const elapsed = timestamp - startTime;
-    const t = Math.min(elapsed / duration, 1);
-    const easedT = easeInOutCubic(t);
 
-    // Polygon 1 - Starts immediately
-    const interpolated1 = interpolatePoints(currentPointsStart1, currentPointsEnd1, easedT);
+    const interpolated1 = interpolatePointsWithDelays(currentPointsStart1, currentPointsEnd1, elapsed, pointDelays1);
+    const interpolated2 = interpolatePointsWithDelays(currentPointsStart2, currentPointsEnd2, elapsed, pointDelays2);
+
     polygon1.setAttribute('points', pointsToString(interpolated1));
-
-    // Polygon 2 - starts after delay
-    let t2 = (elapsed - delayPolygon2) / duration;
-    t2 = Math.max(0, Math.min(t2, 1));  // Clamp between 0 and 1
-    const easedT2 = easeInOutCubic(t2);
-    const interpolated2 = interpolatePoints(currentPointsStart2, currentPointsEnd2, easedT2);
     polygon2.setAttribute('points', pointsToString(interpolated2));
 
-    if (elapsed < duration + delayPolygon2) {
+    const lastDelay = Math.max(
+        ...pointDelays1,
+        ...pointDelays2
+    );
+
+    if (elapsed < durationPerPoint + lastDelay) {
         requestAnimationFrame(animate);
     }
 }
