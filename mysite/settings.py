@@ -116,6 +116,20 @@ USE_I18N = True
 
 USE_TZ = True
 
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {  # everything to stdout → Render logs
+            "class": "logging.StreamHandler",
+        },
+    },
+    "root": {       # catch ANY logger
+        "handlers": ["console"],
+        "level": "ERROR",   # change to DEBUG if you want
+    },
+}
+
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
