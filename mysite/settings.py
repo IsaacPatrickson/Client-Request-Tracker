@@ -30,6 +30,10 @@ DEBUG = os.getenv('DEBUG', 'False') == 'True'  # convert string to bool
 
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost').split(',')
 
+CSRF_TRUSTED_ORIGINS = [
+    "https://software-engineering-agile-project-srgm.onrender.com",
+]
+
 
 # Application definition
 
