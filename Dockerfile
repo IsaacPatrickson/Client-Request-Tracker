@@ -27,5 +27,8 @@ RUN chmod +x /app/render-predeploy.sh
 # Pre-create the staticfiles directory to suppress the warning
 RUN mkdir -p /app/staticfiles
 
+# Collect static files into STATIC_ROOT inside the image
+RUN python manage.py collectstatic --noinput
+
 # Use entrypoint to start the server
 CMD ["/app/entrypoint.sh"]
