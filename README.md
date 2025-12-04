@@ -167,7 +167,7 @@ Access the app at:
 
 ---
 
-# 🗄 **Management Commands**
+## 🗄 **Management Commands**
 
 ### Wipe the database
 
