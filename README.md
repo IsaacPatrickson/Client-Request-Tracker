@@ -1,3 +1,11 @@
+![Python](https://img.shields.io/badge/Python-3.11-blue?logo=python&logoColor=white)
+![Django](https://img.shields.io/badge/Framework-Django-092E20?logo=django&logoColor=white)
+![Docker](https://img.shields.io/badge/Containerized-Docker-2496ED?logo=docker&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/Database-PostgreSQL-336791?logo=postgresql&logoColor=white)
+![Tests](https://img.shields.io/badge/Testing-pytest-blue?logo=pytest)
+![Full Stack](https://img.shields.io/badge/Application-Full%20Stack-green)
+![Deployment](https://img.shields.io/badge/Hosted%20on-Render-46E3B7?logo=render&logoColor=white)
+
 #  **Client Request Management System**
 
 ### Django • Docker • PostgreSQL • Render • Agile • TDD
