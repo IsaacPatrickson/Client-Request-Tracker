@@ -4,7 +4,7 @@
 ![PostgreSQL](https://img.shields.io/badge/Database-PostgreSQL-336791?logo=postgresql&logoColor=white)
 ![Tests](https://img.shields.io/badge/Testing-pytest-blue?logo=pytest)
 ![Full Stack](https://img.shields.io/badge/Application-Full%20Stack-green)
-![Deployment](https://img.shields.io/badge/Hosted%20on-Render-46E3B7?logo=render&logoColor=white)
+![Deployment](https://img.shields.io/badge/Hosted%20on-Render-1d0038?logo=render&logoColor=white)
 
 #  **Client Request Management System**
 
